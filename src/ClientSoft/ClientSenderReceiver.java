@@ -1,7 +1,9 @@
 package ClientSoft;
 
 import java.io.*;
+import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
+import java.net.PortUnreachableException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -28,15 +30,13 @@ public class ClientSenderReceiver {
     public ClientSenderReceiver(int port) throws IOException {
         this.port = port;
         channel = DatagramChannel.open();
-        channel.socket().setSoTimeout(timeout);
+        //channel.socket().setSoTimeout(timeout);
         address = new InetSocketAddress(hostname, port);
         channel.connect(address);
     }
 
     public ServerMessage doRequest(String command, Alice argument)throws IOException, ClassNotFoundException{
         try {
-            if(!checkConnection())
-                return new ServerMessage(SpecialMessage.TIMEOUT, "===\nСервер не доступен.");
             ClientMessage message = new ClientMessage(command, argument);
             sendedstreambuffer = new ByteArrayOutputStream();
             sendedstream = new ObjectOutputStream(sendedstreambuffer);
@@ -49,7 +49,7 @@ public class ClientSenderReceiver {
             channel.receive(buffer);
             receivedsteam = new ObjectInputStream(new ByteArrayInputStream(buffer.array()));
             return (ServerMessage) receivedsteam.readObject();
-        }catch (SocketTimeoutException e){
+        }catch (PortUnreachableException e){
             return new ServerMessage(SpecialMessage.TIMEOUT, "===\nСервер не доступен.");
         }
     }
@@ -63,22 +63,20 @@ public class ClientSenderReceiver {
             sendedstream.flush();
             ByteBuffer buffer = ByteBuffer.wrap(sendedstreambuffer.toByteArray());
             buffer.flip();
-            channel.write(buffer);
+            channel.send(buffer,address);
             buffer.clear();
-            channel.read(buffer);
+            channel.receive(buffer);
             receivedsteam = new ObjectInputStream(new ByteArrayInputStream(buffer.array()));
             ServerMessage serverMessage = (ServerMessage) receivedsteam.readObject();
             if(serverMessage.getSpecialmessage().equals(SpecialMessage.CONNECTION)) return true;
                 else return false;
-        }catch (SocketTimeoutException e){
+        }catch (PortUnreachableException e){
             return false;
         }
     }
 
     public ServerMessage sendCollection (LinkedList<Alice> collection)throws IOException, ClassNotFoundException{
         try {
-            if(!checkConnection())
-                return new ServerMessage(SpecialMessage.TIMEOUT, "===\nСервер не доступен.");
             CopyOnWriteArrayList<Alice> sendingcollection= new CopyOnWriteArrayList<Alice>();
             sendingcollection.addAll(collection);
             ClientMessage message = new ClientMessage(sendingcollection, "send");
@@ -88,12 +86,12 @@ public class ClientSenderReceiver {
             sendedstream.flush();
             ByteBuffer buffer = ByteBuffer.wrap(sendedstreambuffer.toByteArray());
             buffer.flip();
-            channel.write(buffer);
+            channel.send(buffer, address);
             buffer.clear();
-            channel.read(buffer);
+            channel.receive(buffer);
             receivedsteam = new ObjectInputStream(new ByteArrayInputStream(buffer.array()));
             return (ServerMessage) receivedsteam.readObject();
-        }catch (SocketTimeoutException e){
+        }catch (PortUnreachableException e){
             return new ServerMessage(SpecialMessage.TIMEOUT, "===\nСервер не доступен.");
         }
     }
