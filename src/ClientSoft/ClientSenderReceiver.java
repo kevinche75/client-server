@@ -35,7 +35,28 @@ public class ClientSenderReceiver {
 
     public ServerMessage doRequest(String command, Alice argument)throws IOException, ClassNotFoundException{
         try {
+            if(!checkConnection())
+                return new ServerMessage(SpecialMessage.TIMEOUT, "===\nСервер не доступен.");
             ClientMessage message = new ClientMessage(command, argument);
+            sendedstreambuffer = new ByteArrayOutputStream();
+            sendedstream = new ObjectOutputStream(sendedstreambuffer);
+            sendedstream.writeObject(message);
+            sendedstream.flush();
+            ByteBuffer buffer = ByteBuffer.wrap(sendedstreambuffer.toByteArray());
+            buffer.flip();
+            channel.send(buffer, address);
+            buffer.clear();
+            channel.receive(buffer);
+            receivedsteam = new ObjectInputStream(new ByteArrayInputStream(buffer.array()));
+            return (ServerMessage) receivedsteam.readObject();
+        }catch (SocketTimeoutException e){
+            return new ServerMessage(SpecialMessage.TIMEOUT, "===\nСервер не доступен.");
+        }
+    }
+
+    public boolean checkConnection()throws IOException, ClassNotFoundException{
+        try {
+            ClientMessage message = new ClientMessage("test", null);
             sendedstreambuffer = new ByteArrayOutputStream();
             sendedstream = new ObjectOutputStream(sendedstreambuffer);
             sendedstream.writeObject(message);
@@ -46,16 +67,21 @@ public class ClientSenderReceiver {
             buffer.clear();
             channel.read(buffer);
             receivedsteam = new ObjectInputStream(new ByteArrayInputStream(buffer.array()));
-            return (ServerMessage) receivedsteam.readObject();
+            ServerMessage serverMessage = (ServerMessage) receivedsteam.readObject();
+            if(serverMessage.getSpecialmessage().equals(SpecialMessage.CONNECTION)) return true;
+                else return false;
         }catch (SocketTimeoutException e){
-            return new ServerMessage(SpecialMessage.TIMEOUT, "Сервер не доступен.");
+            return false;
         }
     }
 
     public ServerMessage sendCollection (LinkedList<Alice> collection)throws IOException, ClassNotFoundException{
         try {
+            if(!checkConnection())
+                return new ServerMessage(SpecialMessage.TIMEOUT, "===\nСервер не доступен.");
             CopyOnWriteArrayList<Alice> sendingcollection= new CopyOnWriteArrayList<Alice>();
             sendingcollection.addAll(collection);
+            ClientMessage message = new ClientMessage(sendingcollection, "send");
             sendedstreambuffer = new ByteArrayOutputStream();
             sendedstream = new ObjectOutputStream(sendedstreambuffer);
             sendedstream.writeObject(sendingcollection);
@@ -68,7 +94,7 @@ public class ClientSenderReceiver {
             receivedsteam = new ObjectInputStream(new ByteArrayInputStream(buffer.array()));
             return (ServerMessage) receivedsteam.readObject();
         }catch (SocketTimeoutException e){
-            return new ServerMessage(SpecialMessage.TIMEOUT, "Сервер не доступен.");
+            return new ServerMessage(SpecialMessage.TIMEOUT, "===\nСервер не доступен.");
         }
     }
 }

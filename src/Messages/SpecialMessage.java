@@ -3,6 +3,7 @@ package Messages;
 import java.io.Serializable;
 
 public enum SpecialMessage implements Serializable {
-    TIMEOUT;
-
+    TIMEOUT,
+    CONNECTION,
+    DONE,
 }

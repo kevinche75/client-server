@@ -40,9 +40,9 @@ public class Reader {
     }
 
     static private void checkFile(File file) throws FileNotFoundException {
-        if(!file.exists()) throw new FileNotFoundException("Файл не существует");
-        if(!file.isFile()) throw new FileNotFoundException("Это не файл");
-        if(!file.canRead()) throw new SecurityException("Невозможно считать файл");
+        if(!file.exists()) throw new FileNotFoundException("===\nФайл не существует");
+        if(!file.isFile()) throw new FileNotFoundException("===\nЭто не файл");
+        if(!file.canRead()) throw new SecurityException("===\nНевозможно считать файл");
     }
 
    static private LinkedList<Alice> readFile(String path) throws FileNotFoundException{
@@ -62,7 +62,7 @@ public class Reader {
             }
             System.out.println("===\nФайл считан");
         } catch (IOException e){
-            throw new FileNotFoundException("Непредвиденная ошибка чтения файла");
+            throw new FileNotFoundException("===\nНепредвиденная ошибка чтения файла");
         }
         return line.toString();
     }

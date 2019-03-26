@@ -9,8 +9,8 @@ public class Server {
             Scanner scanner = new Scanner(System.in);
             DatagramSocket data = new DatagramSocket(2000);
             InetAddress address = InetAddress.getLocalHost();
-            byte[] buf = new byte[10000];
-            byte[] sendbuf = new byte[10000];
+            byte[] buf = new byte[100000];
+            byte[] sendbuf = new byte[100000];
             String string;
             while (true) {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);

@@ -53,11 +53,10 @@ public class Client {
 //            e.printStackTrace();
 //        }
         try {
-
-            Scanner scanner = new Scanner(System.in);
-            LinkedList<Alice> linkedalices = Reader.justReadFile(scanner);
-        } catch (FileNotFoundException e){
-            System.out.println("===\n" + e.getMessage() + "\n===\nДальнейшая работа невозможна");
+            ConsoleReader consoleReader = new ConsoleReader(2000);
+            consoleReader.work();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
