@@ -30,7 +30,7 @@ public class ClientSenderReceiver {
     public ClientSenderReceiver(int port) throws IOException {
         this.port = port;
         channel = DatagramChannel.open();
-        //channel.socket().setSoTimeout(timeout);
+        channel.socket().setSoTimeout(timeout);
         address = new InetSocketAddress(hostname, port);
         channel.connect(address);
     }
