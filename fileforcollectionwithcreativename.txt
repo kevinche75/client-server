@@ -1,0 +1,32 @@
+[
+{
+  "politeness": "RUDE",
+  "condition": "NORMAL",
+  "cap": {
+  	"nameOfUser": "Алисt"
+	"fullness": 122
+  },
+  "name": "Алисt",
+  "x": 10
+  },
+{
+  "politeness": "RUDE",
+  "condition": "NORMAL",
+  "cap": {
+  	"nameOfUser": "Алисt"
+	"fullness": 122
+  },
+  "name": "Алисt",
+  "x": 10
+  },
+{
+  "politeness": "RUDE",
+  "condition": "NORMAL",
+  "cap": {
+  	"nameOfUser": "Алисt"
+	"fullness": 122
+  },
+  "name": "Алисt",
+  "x": 10
+  }
+]
