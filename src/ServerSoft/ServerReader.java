@@ -16,6 +16,12 @@ public class ServerReader {
 
     private static final String serverFile = "ServerFile.txt";
 
+    static public File getFile() throws FileNotFoundException {
+        File file = new File(getPath());
+        checkFile(file);
+        return file;
+    }
+
     static private String getPath(){
         String workdirectory = System.getProperty("user.dir");
         String separator = System.getProperty("file.separator");
@@ -32,6 +38,7 @@ public class ServerReader {
         if(!file.canRead()) throw new SecurityException("===\nНевозможно считать файл");
     }
 
+
     static private LinkedList<Alice> readFile(String path) throws FileNotFoundException{
         File file = new File(path);
         checkFile(file);
@@ -45,7 +52,7 @@ public class ServerReader {
             while((stringChar=reader.read())!=-1){
                 line.append((char) stringChar);
             }
-            System.out.println("===\nФайл считан");
+            System.out.println("===\nФайл прочитан");
         } catch (IOException e){
             throw new FileNotFoundException("===\nНепредвиденная ошибка чтения файла");
         }
@@ -62,7 +69,7 @@ public class ServerReader {
         UrodJsonParser gson = new UrodJsonParser();
         LinkedList <Alice> linkedalices = gson.getArraysofAliceObjects(rawJson);
         linkedalices.sort(Comparator.naturalOrder());
-        System.out.println("===\nЭлементов было считано: "+linkedalices.size());
+        System.out.println("===\nКоличество считанных элементов: "+linkedalices.size());
         return linkedalices;
     }
 

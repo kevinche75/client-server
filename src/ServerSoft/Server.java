@@ -41,11 +41,6 @@ public class Server {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-try{
-    ServerReader.justReadFile();
-} catch (FileNotFoundException e) {
-    System.out.println(e.getMessage());
-    System.out.println("===\nДальнейшая работа невозможна");
-}
+
     }
 }

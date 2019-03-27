@@ -77,14 +77,12 @@ public class ClientSenderReceiver {
         }
     }
 
-    public ServerMessage sendCollection (LinkedList<Alice> collection)throws IOException, ClassNotFoundException{
+    public ServerMessage sendCollection (CopyOnWriteArrayList<Alice> collection)throws IOException, ClassNotFoundException{
         try {
-            CopyOnWriteArrayList<Alice> sendingcollection= new CopyOnWriteArrayList<Alice>();
-            sendingcollection.addAll(collection);
-            ClientMessage message = new ClientMessage(sendingcollection, "send");
+            ClientMessage message = new ClientMessage(collection, "send");
             sendedstreambuffer = new ByteArrayOutputStream();
             sendedstream = new ObjectOutputStream(sendedstreambuffer);
-            sendedstream.writeObject(sendingcollection);
+            sendedstream.writeObject(message);
             sendedstream.flush();
             ByteBuffer buffer = ByteBuffer.wrap(sendedstreambuffer.toByteArray());
             buffer.flip();

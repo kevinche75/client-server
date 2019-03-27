@@ -3,14 +3,15 @@ import AlicePack.*;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class UrodJsonParser {
 
 
 
-    public LinkedList<Alice> getArraysofAliceObjects(String rawarrays){
-        LinkedList<Alice> arrayList = new LinkedList<>();
+    public CopyOnWriteArrayList<Alice> getArraysofAliceObjects(String rawarrays){
+        CopyOnWriteArrayList<Alice> arrayList = new CopyOnWriteArrayList<>();
         String str = "\\}[, \n\r]*\\{";
         String [] array = rawarrays.split(str);
         int i =0;
@@ -218,13 +219,13 @@ public class UrodJsonParser {
         return "{\n  \"politeness\": \"" + aliceforwriting.getPoliteness() + "\",\n  \"condition\": \"NORMAL\",\n  \"cap\": {\n  \t\"nameOfUser\": \"" + aliceforwriting.getName() + "\"\n\t\"fullness\": " + aliceforwriting.getfullness() + "\n  },\n  \"name\": \""+aliceforwriting.getName()+"\",\n  \"x\": " + aliceforwriting.getLocation() + "\n  }";
          }
 
-    public String getWrittenAlices (LinkedList<Alice> linkedList){
+    public String getWrittenAlices (CopyOnWriteArrayList<Alice> linkedList){
         String buildingstring = "[\n";
         Iterator <Alice> iterator = linkedList.iterator();
              for(int i =0; i < linkedList.size()-1;i++){
                 buildingstring = buildingstring + getAliceInString(iterator.next())+",\n";
              }
-             buildingstring = buildingstring + getAliceInString(linkedList.getLast())+"\n]";
+             buildingstring = buildingstring + getAliceInString(linkedList.get(linkedList.size()-1))+"\n]";
              return buildingstring;
          }
         }

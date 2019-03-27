@@ -9,10 +9,12 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Reader {
 
-    static public LinkedList<Alice> justReadFile(Scanner scanner)throws FileNotFoundException{
+
+    static public CopyOnWriteArrayList<Alice> justReadFile(Scanner scanner)throws FileNotFoundException{
         return readFile(getFilePath(scanner));
     }
 
@@ -45,7 +47,7 @@ public class Reader {
         if(!file.canRead()) throw new SecurityException("===\nНевозможно считать файл");
     }
 
-   static private LinkedList<Alice> readFile(String path) throws FileNotFoundException{
+   static private CopyOnWriteArrayList<Alice> readFile(String path) throws FileNotFoundException{
         StringBuilder readablestring = new StringBuilder();
         int stringChar;
         File file = new File(path);
@@ -67,9 +69,9 @@ public class Reader {
         return line.toString();
     }
 
-   static private LinkedList<Alice> jsonToLinkedList(String rawJson){
+   static private CopyOnWriteArrayList<Alice> jsonToLinkedList(String rawJson){
         UrodJsonParser gson = new UrodJsonParser();
-        LinkedList <Alice> linkedalices = gson.getArraysofAliceObjects(rawJson);
+        CopyOnWriteArrayList <Alice> linkedalices = gson.getArraysofAliceObjects(rawJson);
         linkedalices.sort(Comparator.naturalOrder());
         System.out.println("===\nЭлементов было считано: "+linkedalices.size());
         return linkedalices;
