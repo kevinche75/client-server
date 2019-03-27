@@ -30,8 +30,9 @@ public class ClientSenderReceiver {
     public ClientSenderReceiver(int port) throws IOException {
         this.port = port;
         channel = DatagramChannel.open();
-        channel.socket().setSoTimeout(timeout);
+       // channel.socket().setSoTimeout(timeout);
         address = new InetSocketAddress(hostname, port);
+        //channel.configureBlocking(false);
         channel.connect(address);
     }
 
@@ -66,6 +67,7 @@ public class ClientSenderReceiver {
             channel.send(buffer,address);
             buffer.clear();
             channel.receive(buffer);
+            buffer.flip();
             receivedsteam = new ObjectInputStream(new ByteArrayInputStream(buffer.array()));
             ServerMessage serverMessage = (ServerMessage) receivedsteam.readObject();
             if(serverMessage.getSpecialmessage().equals(SpecialMessage.CONNECTION)) return true;

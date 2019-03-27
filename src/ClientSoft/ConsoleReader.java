@@ -45,6 +45,7 @@ public void work() throws IOException, ClassNotFoundException {
             }
         }
     }
+    while(loadOrImport());
     while(workable){
         scanAndExecuteCommands();
     }
