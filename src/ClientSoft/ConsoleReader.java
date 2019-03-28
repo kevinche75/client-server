@@ -14,7 +14,7 @@ public class ConsoleReader {
 
     private int port;
     private ClientSenderReceiver sender;
-    private boolean workable = true;
+    private Boolean workable = false;
     private Scanner scaner;
 
 public ConsoleReader(int port){
@@ -22,93 +22,105 @@ public ConsoleReader(int port){
     scaner = new Scanner(System.in);
 }
 
-public void work() throws IOException, ClassNotFoundException {
+
+public void testwork()throws IOException {
     sender = new ClientSenderReceiver(port);
     System.out.println("Hello");
-    while(true){
-        if(sender.checkConnection()){
-            System.out.println("===\nСоединение установлено");
-            break;
-        } else {
-            boolean flag = true;
-            while (flag) {
-                System.out.println("===\nПовторить попытку? Введите \"yes\" или \"no\":");
-                switch (scaner.nextLine()) {
-                    case "yes":
-                        flag = false;
-                        break;
-                    case "no":
-                        flag = false;
-                        workable = false;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
-    while(loadOrImport());
-    while(workable){
-        scanAndExecuteCommands();
-    }
+    new ClientSenderReceiver<>(2000, "здарова", new Alice()).start();
 }
 
-private boolean loadOrImport() throws IOException, ClassNotFoundException {
-    System.out.println("===\nИспользовать коллекцию на сервере или загрузить свою? Введите \"yes\" или \"no\":");
-    while (true) {
-        switch (scaner.nextLine()) {
-            case "yes":
-                try {
-                    while (checkMessage(sender.sendCollection(Reader.justReadFile(scaner)))) ;
-                    return false;
-                }catch (FileNotFoundException e){
-                    System.out.println(e.getMessage());
-                    return true;
+public void checkConnection() throws IOException, ClassNotFoundException {
+    sender = new ClientSenderReceiver(port);
+//    while(true){
+//        if(sender.checkConnection()){
+//            System.out.println("===\nСоединение установлено");
+//            break;
+//        } else {
+//            boolean flag = true;
+//            while (flag) {
+//                System.out.println("===\nСоединение не установлено");
+//                System.out.println("===\nПовторить попытку? Введите \"yes\" или \"no\":");
+//                switch (scaner.nextLine()) {
+//                    case "yes":
+//                        flag = false;
+//                        break;
+//                    case "no":
+//                        flag = false;
+//                        workable = false;
+//                    default:
+//                        System.out.println("===\nНеизвестный ответ");
+//                        break;
+//                }
+//            }
+//        }
+//    }
+    System.out.println("===\nДоступные команды: " +
+            "\n1. help: показать доступные комманды" +
+            "\n2. connect: попытка соединения с сервером" +
+            "\n3. exit: выйти из приложения");
+    while(true){
+        switch (scaner.nextLine()){
+            case "help":
+                System.out.println("\n===\n1. help: показать доступные комманды" +
+                        "\n2. connect: попытка соединения с сервером" +
+                        "\n3. exit: выйти из приложения");
+                break;
+            case "connect":
+                System.out.println("===\nПопытка соединения...");
+                if(sender.checkConnection()) {
+                    workable=true;
+                    return;
+                } else {
+                    workable = false;
                 }
-            case "no":
-                while(!sender.checkConnection()){
-                    System.out.println("===\nСервер недоступен");
-                    boolean flag = true;
-                    while (flag) {
-                        System.out.println("===\nПовторить попытку? Введите \"yes\" или \"no\":");
-                        switch (scaner.nextLine()) {
-                            case "yes":
-                                flag = false;
-                               break;
-                            case "no":
-                                return true;
-                            default:
-                                break;
-                        }
-                    }
-                }
+            break;
+            case "exit":
+                return;
             default:
+                System.out.println("===\nНеизвестная команда");
                 break;
         }
     }
 }
 
-private boolean checkMessage(ServerMessage message){
-    switch (message.getSpecialmessage()){
-        case TIMEOUT:
-            System.out.println(message.getMessage());
-            System.out.println("===\nПовторить попытку? Введите \"yes\" или \"no\":");
-            while (true) {
-                switch (scaner.nextLine()) {
-                    case "yes":
-                        return true;
-                    case "no":
-                        return false;
-                    default:
-                        break;
-                }
-            }
-        case DONE:
-            System.out.println(message.getMessage());
-            return false;
-        default:
-            return false;
+public void work() throws IOException, ClassNotFoundException {
+    System.out.println("Hello");
+    checkConnection();
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        try {
+            new ClientSenderReceiver<>(2000, "exit", null).start();
+        } catch (IOException e) {
+            System.out.println("===\nВсё плохо");
+        }
+    }));
+    if(workable) {
+        new Receiver(sender.getChannel(), workable).start();
+        loadOrImport();
+    }
+    while(workable){
+        scanAndExecuteCommands();
     }
 }
+
+private void loadOrImport() throws IOException {
+    while (true) {
+        System.out.println("===\nИспользовать коллекцию на сервере или загрузить свою? Введите \"yes\" или \"no\":");
+        switch (scaner.nextLine()) {
+            case "yes":
+                try {
+                    new ClientSenderReceiver<>(2000, "import", Reader.justReadFile(scaner)).start();
+                }catch (FileNotFoundException e){
+                    System.out.println(e.getMessage());
+                }
+            case "no":
+                return;
+            default:
+                System.out.println("===\nНеизвестный ответ");
+                break;
+        }
+    }
+}
+
 
     private void scanAndExecuteCommands() throws IOException, ClassNotFoundException {
             String commands[] = scaner.nextLine().trim().split(" ", 2);
@@ -121,21 +133,20 @@ private boolean checkMessage(ServerMessage message){
                         System.out.println("===\nДанная команда не должна содержать аргументов\n===");
                     return;
                     }
-                        while(checkMessage(sender.doRequest(commands[0], null)));
+                    new ClientSenderReceiver<>(2000, commands[0], null).start();
                     break;
                 case "add":
                 case "remove_greater":
                 case "remove_all":
                 case "remove":
                     try {
-                        while(checkMessage(sender.doRequest(commands[0],getElement(commands[1]))));
-                        System.out.println("===");
+                        new ClientSenderReceiver<>(2000, commands[0], getElement(commands[1])).start();
                     } catch (JsonException e) {
                         System.out.println("===\nОбнаружена ошибка при парсинге элемента" + e.getMessage());
                     }
                     break;
-                case "exit": //FIXME
-                    checkMessage(sender.doRequest(commands[0],null));
+                case "exit":
+                    new ClientSenderReceiver<>(2000, commands[0], null).start();
                     workable = false;
                     break;
                 default:

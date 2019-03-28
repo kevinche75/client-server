@@ -37,7 +37,7 @@ public class Client {
 //                socket.send(packet);
 //            if (string.equalsIgnoreCase("exit")){
 //                System.out.println("End connection");
-//                break;
+    //                break;
 //            }
 //                DatagramPacket receivepacket = new DatagramPacket(receivebuffer, receivebuffer.length);
 //                socket.receive(receivepacket);
@@ -55,6 +55,7 @@ public class Client {
         try {
             ConsoleReader consoleReader = new ConsoleReader(2000);
             consoleReader.work();
+          //  consoleReader.testwork();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
