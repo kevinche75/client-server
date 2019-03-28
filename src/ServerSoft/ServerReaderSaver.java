@@ -3,24 +3,32 @@ package ServerSoft;
 import AlicePack.Alice;
 import Parser.UrodJsonParser;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ServerReader {
+public class ServerReaderSaver {
 
     private static final String serverFile = "ServerFile.txt";
 
-    static public File getFile() throws FileNotFoundException {
-        File file = new File(getPath());
-        checkFile(file);
-        return file;
+    public static void save(CopyOnWriteArrayList<Alice> linkedalices) throws FileNotFoundException {
+        File sourcefile = new File(getPath());
+        if(!sourcefile.exists()) throw new FileNotFoundException("===\nФайл не существует");
+        if(!sourcefile.isFile()) throw new FileNotFoundException("===\nЭто не файл");
+        if(!sourcefile.canWrite()) throw new FileNotFoundException("===\nФайл не читается");
+        try (PrintWriter printer = new PrintWriter(sourcefile)){
+            UrodJsonParser urodJsonParser = new UrodJsonParser();
+            printer.write(urodJsonParser.getWrittenAlices(linkedalices));
+            System.out.println("===\nКоллекция сохранена в файле: " + sourcefile.getAbsolutePath() + "\n===");
+            System.out.println("===\nРабота с коллекцией завершена\n===");
+        } catch (FileNotFoundException e) {
+            System.out.println("===\nСохранение коллекции не удалось\n===");
+            e.getStackTrace();
+        }
     }
+
 
     static private String getPath(){
         String workdirectory = System.getProperty("user.dir");
@@ -29,7 +37,7 @@ public class ServerReader {
     }
 
     static public CopyOnWriteArrayList<Alice> justReadFile()throws FileNotFoundException {
-        return toCopyOnWriteArray(readFile(getPath()));
+        return readFile(getPath());
     }
 
     static private void checkFile(File file) throws FileNotFoundException {
@@ -39,7 +47,7 @@ public class ServerReader {
     }
 
 
-    static private LinkedList<Alice> readFile(String path) throws FileNotFoundException{
+    static private CopyOnWriteArrayList<Alice> readFile(String path) throws FileNotFoundException{
         File file = new File(path);
         checkFile(file);
         return jsonToLinkedList(readJsonFromFile(file));
@@ -59,15 +67,9 @@ public class ServerReader {
         return line.toString();
     }
 
-    static private CopyOnWriteArrayList<Alice> toCopyOnWriteArray(LinkedList<Alice> collection){
-        CopyOnWriteArrayList<Alice> array = new CopyOnWriteArrayList<>();
-        array.addAll(collection);
-        return array;
-    }
-
-    static private LinkedList<Alice> jsonToLinkedList(String rawJson){
+    static private CopyOnWriteArrayList<Alice> jsonToLinkedList(String rawJson){
         UrodJsonParser gson = new UrodJsonParser();
-        LinkedList <Alice> linkedalices = gson.getArraysofAliceObjects(rawJson);
+        CopyOnWriteArrayList <Alice> linkedalices = gson.getArraysofAliceObjects(rawJson);
         linkedalices.sort(Comparator.naturalOrder());
         System.out.println("===\nКоличество считанных элементов: "+linkedalices.size());
         return linkedalices;

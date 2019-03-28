@@ -3,6 +3,7 @@ package ClientSoft;
 import Messages.ServerMessage;
 import Parser.JsonException;
 import AlicePack.*;
+import Parser.UrodJsonParser;
 
 
 import java.io.FileNotFoundException;

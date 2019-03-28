@@ -1,13 +1,11 @@
 package ClientSoft;
 
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.InetSocketAddress;
-import java.net.PortUnreachableException;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.LinkedList;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import AlicePack.*;
@@ -19,6 +17,7 @@ public class ClientSenderReceiver {
 
     private int port;
     private DatagramChannel channel;
+    private DatagramSocket socket;
     private InetSocketAddress adress;
     private int timeout = 10000;
     private static final String hostname = "localhost";
@@ -26,14 +25,15 @@ public class ClientSenderReceiver {
     private  ByteArrayOutputStream sendedstreambuffer;
     private InetSocketAddress address;
     private ObjectInputStream receivedsteam;
+    private UUID id;
 
     public ClientSenderReceiver(int port) throws IOException {
         this.port = port;
         channel = DatagramChannel.open();
-       // channel.socket().setSoTimeout(timeout);
         address = new InetSocketAddress(hostname, port);
         //channel.configureBlocking(false);
-        channel.connect(address);
+        socket = channel.socket();
+        socket.setSoTimeout(timeout);
     }
 
     public ServerMessage doRequest(String command, Alice argument)throws IOException, ClassNotFoundException{
@@ -57,7 +57,7 @@ public class ClientSenderReceiver {
 
     public boolean checkConnection()throws IOException, ClassNotFoundException{
         try {
-            ClientMessage message = new ClientMessage("test", null);
+            ClientMessage<Alice> message = new ClientMessage<>("test", null);
             sendedstreambuffer = new ByteArrayOutputStream();
             sendedstream = new ObjectOutputStream(sendedstreambuffer);
             sendedstream.writeObject(message);
@@ -72,7 +72,7 @@ public class ClientSenderReceiver {
             ServerMessage serverMessage = (ServerMessage) receivedsteam.readObject();
             if(serverMessage.getSpecialmessage().equals(SpecialMessage.CONNECTION)) return true;
                 else return false;
-        }catch (PortUnreachableException e){
+        }catch (SocketTimeoutException e){
             return false;
         }
     }
