@@ -24,9 +24,10 @@ public ConsoleReader(int port){
 
 
 public void testwork()throws IOException {
-    sender = new ClientSenderReceiver(port);
+    sender = new ClientSenderReceiver<>(2000, "здарова", new Alice());
     System.out.println("Hello");
-    new ClientSenderReceiver<>(2000, "здарова", new Alice()).start();
+    new Receiver(sender.getChannel(), workable).start();
+    //new ClientSenderReceiver<>(2000, "здарова", new Alice()).start();
 }
 
 public void checkConnection() throws IOException, ClassNotFoundException {

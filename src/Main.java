@@ -1,45 +1,43 @@
 import ClientSoft.ClientSenderReceiver;
 import AlicePack.*;
-import java.io.IOException;
+import Messages.ClientMessage;
+
+import java.io.*;
+import java.net.DatagramPacket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 
 public class Main {
-//   public static void letsStart(Start s) {
-//        s.start();
-//    }
 
-    public static void main(String[] arg) {
-//        boolean workable = true;
-//        Scanner scanner = new Scanner(System.in);
-//        while (workable) {
-//            System.out.println("===\nКакую лабораторную запустить? Введите цифры 4, 5, 6 или exit для выхода.\n===");
-//            switch (scanner.nextLine()) {
-//                case "4":
-//                    Alice alice = new Alice("Алисище", Politeness.POLITE, 10);
-//                    Duchess duchess = new Duchess("Герцогиня");
-//                    letsStart(() -> {
-//                        duchess.sayPhrase();
-//                        duchess.randomMove(alice, alice);
-//                        duchess.changingCondition(alice, alice, alice);
-//                    });
-//                    break;
-//                case "5":
-//                    InteractiveMachine interactiveMachine = new InteractiveMachine();
-//                    break;
-//                case "6":
-//                    break;
-//                case "exit":
-//                    workable = false;
-//                    break;
-//                default:
-//                    System.out.println("Неизвестная лаба");
-//                    break;
-//            }
-//        }
-//        InteractiveMachine interactiveMachine = new InteractiveMachine();
-//try{
-//    ClientSenderReceiver sender = new ClientSenderReceiver(3000);
-//    sender.doRequest("Пример", new Alice());
-//}catch (IOException e){}
+    public final static int DEFAULT_PORT = 2007;
+    public static void main(String[] arg) throws IOException {
+        SocketAddress remote = new InetSocketAddress("localhost", DEFAULT_PORT);
+        DatagramChannel channel = DatagramChannel.open( );
+        //channel.connect(remote);
+        //channel.socket().bind(remote);
+//        String message = "Привет";
+        ByteBuffer buffer;
+//        System.out.println(channel.send(buffer, remote));
+           ByteArrayOutputStream bytte = new ByteArrayOutputStream();
+        try (ObjectOutputStream sendstream = new ObjectOutputStream(bytte)) {
+            sendstream.writeObject(new ClientMessage<Alice>("Привет", new Alice()));
+            sendstream.flush();
+            buffer = ByteBuffer.wrap(bytte.toByteArray());
+            System.out.println(channel.send(buffer, remote));
+            buffer.clear();
+            System.out.println("Отправлено");
+        }
+        SocketAddress adress = channel.receive(buffer);
+        System.out.println(adress);
+        try (ObjectInputStream receivedstream = new ObjectInputStream(new ByteArrayInputStream(buffer.array()))) {
+            ClientMessage<Alice> message = (ClientMessage<Alice>) receivedstream.readObject();
+            System.out.println(message.getMessage());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }
 

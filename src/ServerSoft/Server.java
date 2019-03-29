@@ -19,32 +19,33 @@ public class Server {
             Scanner scanner = new Scanner(System.in);
             DatagramSocket data = new DatagramSocket(2000);
             InetSocketAddress address = new InetSocketAddress("localhost", 2000);
+            data.connect(address);
             byte[] buf = new byte[100000];
             byte[] sendbuf = new byte[100000];
             String string;
             ObjectOutputStream sendedstream;
             ByteArrayOutputStream sendedstreambuffer;
-            while (true) {
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                data.receive(packet);
-                try(ObjectInputStream receivedstream = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))){
-                    ClientMessage message = (ClientMessage) receivedstream.readObject();
-                    System.out.println((Alice)message.getArgument());
-                    System.out.println(message.getMessage());
-                }
+//            while (true) {
+//                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+//                data.receive(packet);
+//                try(ObjectInputStream receivedstream = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))){
+//                    ClientMessage message = (ClientMessage) receivedstream.readObject();
+//                    System.out.println((Alice)message.getArgument());
+//                    System.out.println(message.getMessage());
+//                }
                 string = "Здарова бичара";
                 sendbuf = string.getBytes();
-                packet = new DatagramPacket(sendbuf, sendbuf.length, address);
+                DatagramPacket packet = new DatagramPacket(sendbuf, sendbuf.length, address);
                 data.send(packet);
-            }
+            //}
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
         }
 
 //        try {

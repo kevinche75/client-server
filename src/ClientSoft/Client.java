@@ -54,9 +54,9 @@ public class Client {
 //        }
         try {
             ConsoleReader consoleReader = new ConsoleReader(2000);
-            consoleReader.work();
-          //  consoleReader.testwork();
-        } catch (IOException | ClassNotFoundException e) {
+      //      consoleReader.work();
+            consoleReader.testwork();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

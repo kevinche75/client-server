@@ -23,7 +23,7 @@ public class ClientSenderReceiver <T> extends Thread{
     private ObjectOutputStream sendedstream;
     private  ByteArrayOutputStream sendedstreambuffer;
     private InetAddress host;
-    private InetSocketAddress address;
+    private SocketAddress address;
     private ObjectInputStream receivedsteam;
     private T argument;
     private String command;
@@ -37,18 +37,42 @@ public class ClientSenderReceiver <T> extends Thread{
     }
 
     public ClientSenderReceiver (int port,String command, T argument) throws IOException {
-        host = InetAddress.getLocalHost();
-        address = new InetSocketAddress(hostname, port);
-        channel = DatagramChannel.open();
+//        host = InetAddress.getLocalHost();
+//        address = new InetSocketAddress(hostname, port);
+//        channel = DatagramChannel.open();
        // channel.bind(null);
-        socket = channel.socket();
+//        socket = channel.socket();
        // channel.connect(adress);
+        channel = DatagramChannel.open();
+        address = new InetSocketAddress(hostname, port);
+        channel.connect(address);
         this.command = command;
         this.argument = argument;
     }
 
     public DatagramChannel getChannel(){
         return channel;
+    }
+
+
+    public void sdo(){
+        ClientMessage message = new ClientMessage(command, argument);
+        sendedstreambuffer = new ByteArrayOutputStream();
+        try {
+            sendedstreambuffer = new ByteArrayOutputStream();
+            sendedstream = new ObjectOutputStream(sendedstreambuffer);
+            sendedstream.writeObject(message);
+            sendedstream.flush();
+//            byte[] sendbuffer = sendedstreambuffer.toByteArray();
+//            DatagramPacket packet = new DatagramPacket(sendbuffer, sendbuffer.length, address);
+//            socket.send(packet);
+            ByteBuffer buffer = ByteBuffer.wrap(sendedstreambuffer.toByteArray());
+            buffer.flip();
+            channel.write(buffer);
+            System.out.println("===\nСообщение послано серверу");
+        } catch (IOException e) {
+            System.out.println("===\nНепредвиденная ошибка");
+        }
     }
 
     @Override
@@ -60,12 +84,12 @@ public class ClientSenderReceiver <T> extends Thread{
             sendedstream = new ObjectOutputStream(sendedstreambuffer);
             sendedstream.writeObject(message);
             sendedstream.flush();
-            byte[] sendbuffer = sendedstreambuffer.toByteArray();
-            DatagramPacket packet = new DatagramPacket(sendbuffer, sendbuffer.length, address);
-            socket.send(packet);
-//            ByteBuffer buffer = ByteBuffer.wrap(sendedstreambuffer.toByteArray());
-//            buffer.flip();
-//            channel.send(buffer, address);
+//            byte[] sendbuffer = sendedstreambuffer.toByteArray();
+//            DatagramPacket packet = new DatagramPacket(sendbuffer, sendbuffer.length, address);
+//            socket.send(packet);
+            ByteBuffer buffer = ByteBuffer.wrap(sendedstreambuffer.toByteArray());
+            buffer.flip();
+            channel.send(buffer, address);
             System.out.println("===\nСообщение послано серверу");
         } catch (IOException e) {
             System.out.println("===\nНепредвиденная ошибка");
@@ -96,6 +120,12 @@ public class ClientSenderReceiver <T> extends Thread{
     public boolean checkConnection()throws IOException, ClassNotFoundException{
         try {
             ClientMessage message = new ClientMessage<>("test", null);
+//            sendedstream = new ObjectOutputStream(sendedstreambuffer);
+//            sendedstream.writeObject(message);
+//            sendedstream.flush();
+//            ByteBuffer buffer = ByteBuffer.wrap(sendedstreambuffer.toByteArray());
+//            buffer.flip();
+//            channel.send(buffer, address);
             sendedstreambuffer = new ByteArrayOutputStream();
             sendedstream = new ObjectOutputStream(sendedstreambuffer);
             sendedstream.writeObject(message);
@@ -106,7 +136,11 @@ public class ClientSenderReceiver <T> extends Thread{
             byte [] receivedbuffer = new byte[65507];
             DatagramPacket receivepacket = new DatagramPacket(receivedbuffer, receivedbuffer.length);
             socket.receive(packet);
-            receivedsteam = new ObjectInputStream(new ByteArrayInputStream(receivepacket.getData()));
+//           // receivedsteam = new ObjectInputStream(new ByteArrayInputStream(receivepacket.getData()));
+//            buffer.clear();
+//            channel.receive(buffer);
+//            buffer.flip();
+//            receivedsteam = new ObjectInputStream(new ByteArrayInputStream(buffer.array()));
             System.out.println((String)receivedsteam.readObject());
             return true;
         }catch (SocketTimeoutException e){
