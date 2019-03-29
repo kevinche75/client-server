@@ -3,19 +3,14 @@ package Messages;
 import java.io.Serializable;
 
 public class ServerMessage implements Serializable {
-    private SpecialMessage specialmessage;
-    private String message;
 
-    public SpecialMessage getSpecialmessage() {
-        return specialmessage;
-    }
+    private String message;
 
     public String getMessage() {
         return message;
     }
 
-    public ServerMessage(SpecialMessage specialmessage, String message){
-        this.specialmessage = specialmessage;
+    public ServerMessage(String message){
         this.message = message;
     }
 }
